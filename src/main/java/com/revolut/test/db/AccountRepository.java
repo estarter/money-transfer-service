@@ -7,4 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AccountRepository extends AbstractRepository<Account> {
 
+    public AccountRepository(long lockTimeout) {
+        super(lockTimeout);
+    }
 }

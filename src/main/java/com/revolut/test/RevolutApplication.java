@@ -10,11 +10,13 @@ import com.revolut.test.resources.TransactionResource;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class RevolutApplication extends Application<RevolutConfiguration> {
 
-    private AccountRepository accountRepository = new AccountRepository();
-    private TransactionRepository transactionRepository = new TransactionRepository();
+    protected AccountRepository accountRepository;
+    private TransactionRepository transactionRepository;
 
     public static void main(final String[] args) throws Exception {
         new RevolutApplication().run(args);
@@ -27,11 +29,14 @@ public class RevolutApplication extends Application<RevolutConfiguration> {
 
     @Override
     public void initialize(final Bootstrap<RevolutConfiguration> bootstrap) {
-        // TODO: application initialization
     }
 
     @Override
     public void run(final RevolutConfiguration configuration, final Environment environment) {
+        log.info("Set lock timeout to {} secs", configuration.getLockTimeout());
+        accountRepository = new AccountRepository(configuration.getLockTimeout());
+        transactionRepository = new TransactionRepository(configuration.getLockTimeout(), accountRepository);
+
         environment.healthChecks().register("revolut", new RevolutHealthCheck());
         environment.jersey().register(new ObjectNotFoundExceptionMapper());
         environment.jersey().register(new AccountResource(accountRepository));

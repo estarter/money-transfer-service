@@ -7,6 +7,7 @@ import lombok.Data;
 
 @Data
 public class Transfer {
+
     private Long from;
     private Long to;
     private BigDecimal amount;

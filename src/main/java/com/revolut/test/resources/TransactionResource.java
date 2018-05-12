@@ -42,7 +42,7 @@ public class TransactionResource {
         transaction.setAmount(transfer.getAmount());
         transaction.setCurrency(transfer.getCurrency());
 
-        transactionRepository.save(transaction);
+        transactionRepository.process(transaction);
 
         UriBuilder builder = uriInfo.getAbsolutePathBuilder();
         builder.path(Long.toString(transaction.getId()));

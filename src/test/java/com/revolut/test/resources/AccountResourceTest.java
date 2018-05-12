@@ -16,7 +16,7 @@ class AccountResourceTest {
 
     @BeforeEach
     void setUp() {
-        accountRepository = new AccountRepository();
+        accountRepository = new AccountRepository(5);
     }
 
     @Test

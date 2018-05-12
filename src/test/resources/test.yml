@@ -1,3 +1,4 @@
+lockTimeout: 100
 logging:
   level: INFO
   loggers:
