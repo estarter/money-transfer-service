@@ -84,6 +84,6 @@ class RevolutApplicationTest {
                             .target("http://localhost:" + EXTENSION.getLocalPort() + "/api/transactions")
                             .request()
                             .post(Entity.json(transfer));
-        System.out.println("response = " + response);
+        assertThat(response.getStatus()).isEqualTo(400);
     }
 }

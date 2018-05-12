@@ -43,11 +43,17 @@ public class TransactionResource {
         transaction.setAmount(transfer.getAmount());
         transaction.setCurrency(transfer.getCurrency());
 
-        transactionRepository.process(transaction);
+        try {
+            transactionRepository.process(transaction);
 
-        UriBuilder builder = uriInfo.getAbsolutePathBuilder();
-        builder.path(Long.toString(transaction.getId()));
-        return Response.created(builder.build()).build();
+            UriBuilder builder = uriInfo.getAbsolutePathBuilder();
+            builder.path(Long.toString(transaction.getId()));
+            return Response.created(builder.build()).build();
+        } catch (RuntimeException e) {
+            return Response.status(400)
+                    .entity(e.getMessage())
+                    .build();
+        }
     }
 
     @GET
