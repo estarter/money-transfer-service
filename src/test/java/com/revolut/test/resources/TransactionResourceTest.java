@@ -1,5 +1,6 @@
 package com.revolut.test.resources;
 
+import static com.revolut.test.TestHelper.assertBalance;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -39,10 +40,10 @@ class TransactionResourceTest {
     @Test
     void itShouldPerformTransfer() {
         transactionRepository.process(makeTransaction(from, to, 20.50));
-        assertThat(from.getBalance()).isEqualTo("79.50");
-        assertThat(to.getBalance()).isEqualTo("20.50");
+        assertBalance(79.5, from.getBalance());
+        assertBalance(20.5, to.getBalance());
 
-        assertThat(transactionRepository.getLatest().getAmount()).isEqualTo("20.50");
+        assertBalance(20.50, transactionRepository.getLatest().getAmount());
         assertThat(transactionRepository.getLatest().getSrcAccountId()).isEqualTo(from.getId());
         assertThat(transactionRepository.getLatest().getDestAccountId()).isEqualTo(to.getId());
         assertThat(transactionRepository.getLatest().getCurrency()).isEqualTo(Currency.getInstance("CHF"));
@@ -87,8 +88,8 @@ class TransactionResourceTest {
 
     private void assertTransactionFailure(String s, Executable executable) {
         Throwable exception = assertThrows(Exception.class, executable);
-        assertThat(from.getBalance()).isEqualTo("100");
-        assertThat(to.getBalance()).isEqualTo("0");
+        assertBalance(100, from.getBalance());
+        assertBalance(0, to.getBalance());
         assertThat(transactionRepository.getLatest().getState()).isEqualTo(TransactionState.FAILED);
         assertThat(exception.getMessage()).isEqualTo(s);
     }

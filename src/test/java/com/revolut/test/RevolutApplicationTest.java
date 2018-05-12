@@ -1,5 +1,6 @@
 package com.revolut.test;
 
+import static com.revolut.test.TestHelper.assertBalance;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
@@ -75,8 +76,8 @@ class RevolutApplicationTest {
                                      .post(Entity.json(transfer));
 
         assertThat(response.getStatus()).isEqualTo(201);
-        assertThat(from.getBalance()).isEqualTo("87.7");
-        assertThat(to.getBalance()).isEqualTo("12.3");
+        assertBalance(87.7, from.getBalance());
+        assertBalance(12.3, to.getBalance());
 
         transfer.setAmount(BigDecimal.valueOf(100));
         response = EXTENSION.client()

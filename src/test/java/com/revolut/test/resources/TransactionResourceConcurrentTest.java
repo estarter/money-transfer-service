@@ -1,5 +1,6 @@
 package com.revolut.test.resources;
 
+import static com.revolut.test.TestHelper.assertBalance;
 import static com.revolut.test.resources.TransactionResourceTest.makeTransaction;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -58,9 +59,8 @@ class TransactionResourceConcurrentTest {
 
         assertThat(counter.get()).isEqualTo(TASK_AMOUNT);
         assertThat(transactionRepository.getAll().size()).isEqualTo(TASK_AMOUNT);
-        assertThat(from.getBalance()).isCloseTo(BigDecimal.valueOf(0.0), Offset.offset(BigDecimal.valueOf(0.001)));
-        assertThat(to.getBalance()).isCloseTo(BigDecimal.valueOf(TASK_AMOUNT),
-                Offset.offset(BigDecimal.valueOf(0.001)));
+        assertBalance(0.0, from.getBalance());
+        assertBalance(TASK_AMOUNT, to.getBalance());
         val notExecuted = transactionRepository.getAll()
                                                .stream()
                                                .map(id -> transactionRepository.get(id).getState())
