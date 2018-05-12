@@ -1,9 +1,9 @@
 package com.revolut.test.db;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -13,8 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class AbstractRepository<T> {
 
     private final long lockTimeout;
-    protected Map<Long, T> store = new HashMap<>();
-    private Map<Long, ReentrantLock> rowLock = new HashMap<>();
+    protected Map<Long, T> store = new ConcurrentHashMap<>();
+    private Map<Long, ReentrantLock> rowLock = new ConcurrentHashMap<>();
 
     protected AbstractRepository(long lockTimeout) {
         this.lockTimeout = lockTimeout;

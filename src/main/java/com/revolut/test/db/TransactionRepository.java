@@ -23,10 +23,13 @@ public class TransactionRepository extends AbstractRepository<Transaction> {
 
     public void process(Transaction transaction) {
         try {
+            log.info("start processing transaction {}", transaction.getId());
             save(transaction);
             processTransaction(transaction);
+            log.info("processed transaction {}", transaction.getId());
         } catch (RuntimeException e) {
             transaction.setState(TransactionState.FAILED);
+            log.info("fail processing transaction {}", transaction.getId(), e);
             throw e;
         } finally {
             unlock(transaction);

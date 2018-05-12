@@ -93,7 +93,7 @@ class TransactionResourceTest {
         assertThat(exception.getMessage()).isEqualTo(s);
     }
 
-    private Transaction makeTransaction(Account from, Account to, double amount) {
+    protected static Transaction makeTransaction(Account from, Account to, double amount) {
         Transaction transaction = new Transaction();
         transaction.setCurrency(from.getCurrency());
         transaction.setSrcAccountId(from.getId());
