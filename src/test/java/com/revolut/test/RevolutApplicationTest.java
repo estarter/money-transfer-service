@@ -35,11 +35,8 @@ class RevolutApplicationTest {
                                    .get(Long[].class);
         assertThat(ids).isEmpty();
 
-        Account origAccount = Account.builder()
-                                 .name("test1")
-                                 .balance(BigDecimal.valueOf(12.3))
-                                 .currency(Currency.getInstance("CHF"))
-                                 .build();
+        Account origAccount = new Account();
+        origAccount.setBalance(BigDecimal.valueOf(12.3));
         Response response = EXTENSION.client()
                                   .target("http://localhost:" + EXTENSION.getLocalPort() + "/api/accounts")
                                   .request()
@@ -50,7 +47,7 @@ class RevolutApplicationTest {
                                             .target(accountUrl)
                                             .request()
                                             .get(Account.class);
-        assertThat(origAccount).isEqualToIgnoringGivenFields(retrievedAccount, "accountId");
+        assertThat(origAccount).isEqualToIgnoringGivenFields(retrievedAccount, "id");
 
         ids = EXTENSION.client()
                        .target("http://localhost:" + EXTENSION.getLocalPort() + "/api/accounts")

@@ -24,4 +24,13 @@ http :8080/api/accounts name=test_acc1 currency=CHF balance=100 -v
 http :8080/api/accounts
 # see the account
 http :8080/api/accounts/1
+
+http :8080/api/accounts name=test_acc2 currency=CHF balance=200 -v
+
+http :8080/api/transactions from=2 to=1 amount=10 currency=CHF
+
 ```
+
+List of operational tools is available at [admin page](http://localhost:8081/).
+It includes health check, metrics, and others. 
+

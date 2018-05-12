@@ -36,10 +36,10 @@ public class AccountResource {
     @POST
     @Timed
     public Response createAccount(Account account, @Context UriInfo uriInfo) {
-        accountRepository.add(account);
+        accountRepository.save(account);
 
         UriBuilder builder = uriInfo.getAbsolutePathBuilder();
-        builder.path(Long.toString(account.getAccountId()));
+        builder.path(Long.toString(account.getId()));
         return Response.created(builder.build()).build();
     }
 
