@@ -40,8 +40,8 @@ class TransactionResourceTest {
     @Test
     void itShouldPerformTransfer() {
         transactionRepository.process(makeTransaction(from, to, 20.50));
-        assertBalance(79.5, from.getBalance());
-        assertBalance(20.5, to.getBalance());
+        assertBalance(79.5, accountRepository.get(from.getId()).getBalance());
+        assertBalance(20.5, accountRepository.get(to.getId()).getBalance());
 
         assertBalance(20.50, transactionRepository.getLatest().getAmount());
         assertThat(transactionRepository.getLatest().getSrcAccountId()).isEqualTo(from.getId());
@@ -59,6 +59,7 @@ class TransactionResourceTest {
     @Test
     void itShouldCancelTransactionIfSrcAndDestHaveDifferentCurrency() {
         to.setCurrency(Currency.getInstance("USD"));
+        accountRepository.save(to);
         assertTransactionFailure("Source and destination accounts must be of the same currency.",
                 () -> transactionRepository.process(makeTransaction(from, to, 10)));
     }
@@ -94,7 +95,7 @@ class TransactionResourceTest {
         assertThat(exception.getMessage()).isEqualTo(s);
     }
 
-    protected static Transaction makeTransaction(Account from, Account to, double amount) {
+    static Transaction makeTransaction(Account from, Account to, double amount) {
         Transaction transaction = new Transaction();
         transaction.setCurrency(from.getCurrency());
         transaction.setSrcAccountId(from.getId());

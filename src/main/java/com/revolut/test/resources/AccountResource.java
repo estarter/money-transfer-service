@@ -21,7 +21,7 @@ import com.revolut.test.db.AccountRepository;
 @Produces(MediaType.APPLICATION_JSON)
 public class AccountResource {
 
-    private AccountRepository accountRepository;
+    private final AccountRepository accountRepository;
 
     public AccountResource(AccountRepository accountRepository) {
         this.accountRepository = accountRepository;

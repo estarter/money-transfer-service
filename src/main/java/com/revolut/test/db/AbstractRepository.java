@@ -1,5 +1,6 @@
 package com.revolut.test.db;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.Set;
@@ -15,35 +16,63 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class AbstractRepository<T> {
 
     private final long lockTimeout;
-    protected Map<Long, T> store = new ConcurrentHashMap<>();
-    private Map<Long, ReentrantLock> rowLock = new ConcurrentHashMap<>();
+    /* object storage id -> object */
+    final Map<Long, T> store = new ConcurrentHashMap<>();
+    /* each object can be independently locked, therefore id -> lock map */
+    private final Map<Long, ReentrantLock> rowLock = new ConcurrentHashMap<>();
 
-    protected AbstractRepository(long lockTimeout) {
+    AbstractRepository(long lockTimeout) {
         this.lockTimeout = lockTimeout;
     }
 
+    /**
+     * method returns an object by id.
+     * <p>
+     * Implementation details.
+     * To isolate modifications on the object this method would return a copy of the object. #save() method should
+     * be explicitly called to persist the object.
+     * <p>
+     * Object must have a copy constructor.
+     *
+     * @throws ObjectNotFoundException if object is not found
+     */
     public T get(Long id) {
         T result = store.get(id);
-        if (result == null)
+        if (result == null) {
             throw new ObjectNotFoundException("Can't find account with id '" + id + "'");
-        return result;
+        }
+
+        return copyObject(result);
     }
 
+    /**
+     * Persist the object.
+     * <p>
+     * Object must have getId method that returns its unique identifier.
+     */
     public void save(T object) {
-        // todo validate object before save
         try {
             long id = (Long) object.getClass().getMethod("getId").invoke(object);
-            store.put(id, object);
-            rowLock.put(id, new ReentrantLock());
+            store.put(id, copyObject(object));
+            rowLock.putIfAbsent(id, new ReentrantLock());
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException("Object should have getId method", e);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new IllegalStateException("Object should have getId method", e);
+            throw new IllegalStateException("Error invocation getId method", e);
         }
     }
 
-    protected boolean lock(Long id) {
+    /**
+     * Acquires the lock for the object.
+     *
+     * @return whether the lock is acquired
+     * @throws ObjectNotFoundException if object is not found
+     */
+    boolean lock(Long id) {
         try {
+            if (!rowLock.containsKey(id)) {
+                throw new ObjectNotFoundException("Can't find account with id '" + id + "'");
+            }
             return rowLock.get(id).tryLock(lockTimeout, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             log.error("Lock operation has been interrupted", e);
@@ -52,15 +81,31 @@ public abstract class AbstractRepository<T> {
         }
     }
 
-    protected void unlock(Long id) {
+    /**
+     * Release the lock for the object
+     */
+    void unlock(Long id) {
         ReentrantLock reentrantLock = rowLock.get(id);
         if (reentrantLock != null && reentrantLock.isHeldByCurrentThread()) {
             reentrantLock.unlock();
         }
     }
 
+    /**
+     * @return id of all stored objects
+     */
     public Set<Long> getAll() {
         return store.keySet();
     }
 
+    private T copyObject(T result) {
+        try {
+            Constructor constructor = result.getClass().getConstructor(result.getClass());
+            return (T) constructor.newInstance(result);
+        } catch (NoSuchMethodException e) {
+            throw new IllegalStateException("Object should implement a copy constructor", e);
+        } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+            throw new IllegalStateException("Error invocation copy constructor", e);
+        }
+    }
 }

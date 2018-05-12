@@ -34,4 +34,13 @@ public class Transaction {
         id = idGenerator.incrementAndGet();
         state = TransactionState.CREATED;
     }
+
+    public Transaction(Transaction another) {
+        setId(another.getId());
+        setSrcAccountId(another.getSrcAccountId());
+        setDestAccountId(another.getDestAccountId());
+        setAmount(another.getAmount());
+        setCurrency(another.getCurrency());
+        setState(another.getState());
+    }
 }

@@ -21,6 +21,18 @@ public class TransactionRepository extends AbstractRepository<Transaction> {
         return store.get(id);
     }
 
+    /**
+     * Process new transaction.
+     * <p>
+     * First the transaction is saved with status CREATED.
+     * Then it tries to execute the transaction.
+     * In case of successful execution transaction status is set to EXECUTED, source and destination accounts are
+     * updated accordingly.
+     * <p>
+     * In case of failed execution transaction status is set to FAILED, source and destination accounts are not
+     * affected.
+     * The reason of transaction failure is passed out as runtime exception.
+     */
     public void process(Transaction transaction) {
         try {
             log.info("Start processing transaction {}", transaction.getId());
@@ -29,6 +41,7 @@ public class TransactionRepository extends AbstractRepository<Transaction> {
             log.info("Processed transaction {}", transaction.getId());
         } catch (RuntimeException e) {
             transaction.setState(TransactionState.FAILED);
+            save(transaction);
             log.error("Fail processing transaction {}, reason: {}", transaction.getId(), e.getMessage());
             throw e;
         } finally {
@@ -37,6 +50,13 @@ public class TransactionRepository extends AbstractRepository<Transaction> {
     }
 
     private void processTransaction(Transaction transaction) {
+        boolean locked = accountRepository.lock(transaction.getSrcAccountId());
+        locked = locked && accountRepository.lock(transaction.getDestAccountId());
+        locked = locked && this.lock(transaction.getId());
+        if (!locked) {
+            throw new IllegalArgumentException("Error while acquiring locks");
+        }
+
         Account src = accountRepository.get(transaction.getSrcAccountId());
         Account dest = accountRepository.get(transaction.getDestAccountId());
 
@@ -47,13 +67,6 @@ public class TransactionRepository extends AbstractRepository<Transaction> {
             throw new IllegalArgumentException("Transaction currency must be the same as of source account.");
         }
 
-        boolean locked = accountRepository.lock(transaction.getSrcAccountId());
-        locked = locked && accountRepository.lock(transaction.getDestAccountId());
-        locked = locked && this.lock(transaction.getId());
-        if (!locked) {
-            throw new IllegalArgumentException("Error while acquiring locks");
-        }
-
         if (src.getBalance().compareTo(transaction.getAmount()) < 0) {
             throw new IllegalArgumentException("Source account holds insufficient amount.");
         }
@@ -61,6 +74,13 @@ public class TransactionRepository extends AbstractRepository<Transaction> {
         src.setBalance(src.getBalance().subtract(transaction.getAmount()));
         dest.setBalance(dest.getBalance().add(transaction.getAmount()));
         transaction.setState(TransactionState.EXECUTED);
+        accountRepository.save(src);
+        accountRepository.save(dest);
+        save(transaction);
+        log.info("perform transfer of {} {} from {} to {}", transaction.getAmount(), transaction.getCurrency(),
+                src.getId(), dest.getId());
+        log.debug("account {} current amount {} , account {} current amount {}", src.getId(), src.getBalance(),
+                dest.getId(), dest.getBalance());
     }
 
     private void unlock(Transaction transaction) {

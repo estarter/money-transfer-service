@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.revolut.test.api.Account;
+import com.revolut.test.db.AccountRepository;
 import com.revolut.test.resources.support.Transfer;
 
 import io.dropwizard.testing.ResourceHelpers;
@@ -25,7 +26,7 @@ class RevolutApplicationTest {
 
     private static final String CONFIG_PATH = ResourceHelpers.resourceFilePath("test.yml");
 
-    public static final DropwizardAppExtension<RevolutConfiguration> EXTENSION = new DropwizardAppExtension<>(
+    private static final DropwizardAppExtension<RevolutConfiguration> EXTENSION = new DropwizardAppExtension<>(
             RevolutApplication.class, CONFIG_PATH);
 
     @Test
@@ -58,12 +59,13 @@ class RevolutApplicationTest {
 
     @Test
     void testTransactionResource() {
+        AccountRepository accountRepository = ((RevolutApplication) EXTENSION.getApplication()).accountRepository;
         Account from = new Account();
         from.setBalance(BigDecimal.valueOf(100));
-        ((RevolutApplication) EXTENSION.getApplication()).accountRepository.save(from);
+        accountRepository.save(from);
         Account to = new Account();
         to.setBalance(BigDecimal.valueOf(0));
-        ((RevolutApplication) EXTENSION.getApplication()).accountRepository.save(to);
+        accountRepository.save(to);
 
         Transfer transfer = new Transfer();
         transfer.setFrom(from.getId());
@@ -76,8 +78,8 @@ class RevolutApplicationTest {
                                      .post(Entity.json(transfer));
 
         assertThat(response.getStatus()).isEqualTo(201);
-        assertBalance(87.7, from.getBalance());
-        assertBalance(12.3, to.getBalance());
+        assertBalance(87.7, accountRepository.get(from.getId()).getBalance());
+        assertBalance(12.3, accountRepository.get(to.getId()).getBalance());
 
         transfer.setAmount(BigDecimal.valueOf(100));
         response = EXTENSION.client()

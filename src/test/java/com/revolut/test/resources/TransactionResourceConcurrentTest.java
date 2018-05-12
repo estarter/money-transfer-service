@@ -58,8 +58,8 @@ class TransactionResourceConcurrentTest {
 
         assertThat(counter.get()).isEqualTo(TASK_AMOUNT);
         assertThat(transactionRepository.getAll().size()).isEqualTo(TASK_AMOUNT);
-        assertBalance(0.0, from.getBalance());
-        assertBalance(TASK_AMOUNT, to.getBalance());
+        assertBalance(0.0, accountRepository.get(from.getId()).getBalance());
+        assertBalance(TASK_AMOUNT, accountRepository.get(to.getId()).getBalance());
         val notExecuted = transactionRepository.getAll()
                                                .stream()
                                                .map(id -> transactionRepository.get(id).getState())

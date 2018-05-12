@@ -22,7 +22,7 @@ import com.revolut.test.resources.support.Transfer;
 @Produces(MediaType.APPLICATION_JSON)
 public class TransactionResource {
 
-    private TransactionRepository transactionRepository;
+    private final TransactionRepository transactionRepository;
 
     public TransactionResource(TransactionRepository transactionRepository) {
         this.transactionRepository = transactionRepository;
@@ -50,9 +50,7 @@ public class TransactionResource {
             builder.path(Long.toString(transaction.getId()));
             return Response.created(builder.build()).build();
         } catch (RuntimeException e) {
-            return Response.status(400)
-                    .entity(e.getMessage())
-                    .build();
+            return Response.status(400).entity(e.getMessage()).build();
         }
     }
 

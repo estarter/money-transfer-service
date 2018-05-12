@@ -25,4 +25,11 @@ public class Account {
         currency = Currency.getInstance("CHF");
         name = UUID.randomUUID().toString();
     }
+
+    public Account(Account another) {
+        setId(another.getId());
+        setBalance(another.getBalance());
+        setCurrency(another.getCurrency());
+        setName(another.getName());
+    }
 }

@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RevolutApplication extends Application<RevolutConfiguration> {
 
-    protected AccountRepository accountRepository;
+    AccountRepository accountRepository;
     private TransactionRepository transactionRepository;
 
     public static void main(final String[] args) throws Exception {
