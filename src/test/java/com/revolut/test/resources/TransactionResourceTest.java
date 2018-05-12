@@ -13,7 +13,7 @@ import org.junit.jupiter.api.function.Executable;
 
 import com.revolut.test.api.Account;
 import com.revolut.test.api.Transaction;
-import com.revolut.test.api.TransactionState;
+import com.revolut.test.api.support.TransactionState;
 import com.revolut.test.db.AccountRepository;
 import com.revolut.test.db.TransactionRepository;
 

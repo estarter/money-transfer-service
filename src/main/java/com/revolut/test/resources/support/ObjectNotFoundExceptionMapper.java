@@ -1,10 +1,10 @@
-package com.revolut.test.resources;
+package com.revolut.test.resources.support;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 
-import com.revolut.test.db.ObjectNotFoundException;
+import com.revolut.test.db.support.ObjectNotFoundException;
 
 import io.dropwizard.jersey.errors.ErrorMessage;
 

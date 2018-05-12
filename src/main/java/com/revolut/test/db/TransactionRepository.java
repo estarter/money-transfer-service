@@ -2,7 +2,7 @@ package com.revolut.test.db;
 
 import com.revolut.test.api.Account;
 import com.revolut.test.api.Transaction;
-import com.revolut.test.api.TransactionState;
+import com.revolut.test.api.support.TransactionState;
 
 import lombok.extern.slf4j.Slf4j;
 

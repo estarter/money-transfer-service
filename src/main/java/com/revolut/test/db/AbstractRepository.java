@@ -7,6 +7,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.revolut.test.db.support.ObjectNotFoundException;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

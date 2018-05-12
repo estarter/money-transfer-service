@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.util.Currency;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.revolut.test.api.support.TransactionState;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

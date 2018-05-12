@@ -1,4 +1,4 @@
-package com.revolut.test.db;
+package com.revolut.test.db.support;
 
 public class ObjectNotFoundException extends RuntimeException {
 

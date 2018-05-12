@@ -16,6 +16,7 @@ import javax.ws.rs.core.UriInfo;
 import com.codahale.metrics.annotation.Timed;
 import com.revolut.test.api.Transaction;
 import com.revolut.test.db.TransactionRepository;
+import com.revolut.test.resources.support.Transfer;
 
 @Path("/api/transactions")
 @Produces(MediaType.APPLICATION_JSON)

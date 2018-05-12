@@ -13,12 +13,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.revolut.test.api.Account;
-import com.revolut.test.api.TransactionState;
+import com.revolut.test.api.support.TransactionState;
 import com.revolut.test.db.AccountRepository;
 import com.revolut.test.db.TransactionRepository;
 

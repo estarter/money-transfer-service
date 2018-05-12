@@ -4,8 +4,8 @@ import com.revolut.test.db.AccountRepository;
 import com.revolut.test.db.TransactionRepository;
 import com.revolut.test.health.RevolutHealthCheck;
 import com.revolut.test.resources.AccountResource;
-import com.revolut.test.resources.ObjectNotFoundExceptionMapper;
 import com.revolut.test.resources.TransactionResource;
+import com.revolut.test.resources.support.ObjectNotFoundExceptionMapper;
 
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;

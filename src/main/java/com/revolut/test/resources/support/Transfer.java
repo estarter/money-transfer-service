@@ -1,4 +1,4 @@
-package com.revolut.test.resources;
+package com.revolut.test.resources.support;
 
 import java.math.BigDecimal;
 import java.util.Currency;
