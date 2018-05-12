@@ -11,3 +11,17 @@ Health Check
 ---
 
 To see your applications health enter url `http://localhost:8081/healthcheck`
+
+Usage example
+---
+
+Here's an example of usage, [http](https://httpie.org/) program is used as an alternative to curl. 
+
+```bash
+# create new account
+http :8080/api/accounts name=test_acc1 currency=CHF balance=100 -v
+# see all account's ids
+http :8080/api/accounts
+# see the account
+http :8080/api/accounts/1
+```
