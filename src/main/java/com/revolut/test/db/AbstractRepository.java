@@ -2,6 +2,8 @@ package com.revolut.test.db;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -46,21 +48,27 @@ public abstract class AbstractRepository<T> {
         return copyObject(result);
     }
 
+    public T getLatest() {
+        Long id = store.keySet().stream().max(Comparator.naturalOrder()).orElse(-1L);
+        return get(id);
+    }
+
     /**
      * Persist the object.
      * <p>
      * Object must have getId method that returns its unique identifier.
      */
-    public void save(T object) {
+    public T save(T object) {
         try {
             long id = (Long) object.getClass().getMethod("getId").invoke(object);
             if (store.containsKey(id)) {
                 T origObject = store.get(id);
-                Long version = (Long) object.getClass().getMethod("getVersion").invoke(object);
-                Long origVersion = (Long) origObject.getClass().getMethod("getVersion").invoke(object);
+                Method getVersion = object.getClass().getMethod("getVersion");
+                Long version = (Long) getVersion.invoke(object);
+                Long origVersion = (Long) getVersion.invoke(origObject);
                 if (!version.equals(origVersion)) {
                     throw new OptimisticLockException(
-                            "Object " + object.getClass().getName() + " #" + id + " is out of sync.");
+                            "Object " + object.getClass().getSimpleName() + " #" + id + " is out of sync.");
                 }
                 object.getClass().getMethod("setVersion", Long.class).invoke(object, version + 1);
             } else {
@@ -68,6 +76,7 @@ public abstract class AbstractRepository<T> {
             }
             store.put(id, copyObject(object));
             rowLock.putIfAbsent(id, new ReentrantLock());
+            return object;
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException("Object should have getId method", e);
         } catch (IllegalAccessException | InvocationTargetException e) {

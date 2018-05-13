@@ -18,11 +18,6 @@ public class TransactionRepository extends AbstractRepository<Transaction> {
         this.accountRepository = accountRepository;
     }
 
-    public Transaction getLatest() {
-        Long id = store.keySet().stream().sorted().findFirst().orElse(-1L);
-        return store.get(id);
-    }
-
     /**
      * Process new transaction.
      * <p>

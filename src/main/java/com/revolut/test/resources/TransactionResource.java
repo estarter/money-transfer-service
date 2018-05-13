@@ -56,7 +56,7 @@ public class TransactionResource {
     @GET
     @Path("/{id}")
     @Timed
-    public Transaction getAccount(@PathParam("id") Long id) {
+    public Transaction getTransaction(@PathParam("id") Long id) {
         return transactionRepository.get(id);
     }
 }
