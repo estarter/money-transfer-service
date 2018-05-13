@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.revolut.test.db.support.ObjectNotFoundException;
+import com.revolut.test.db.support.OptimisticLockException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -53,6 +54,18 @@ public abstract class AbstractRepository<T> {
     public void save(T object) {
         try {
             long id = (Long) object.getClass().getMethod("getId").invoke(object);
+            if (store.containsKey(id)) {
+                T origObject = store.get(id);
+                Long version = (Long) object.getClass().getMethod("getVersion").invoke(object);
+                Long origVersion = (Long) origObject.getClass().getMethod("getVersion").invoke(object);
+                if (!version.equals(origVersion)) {
+                    throw new OptimisticLockException(
+                            "Object " + object.getClass().getName() + " #" + id + " is out of sync.");
+                }
+                object.getClass().getMethod("setVersion", Long.class).invoke(object, version+1);
+            } else {
+                object.getClass().getMethod("setVersion", Long.class).invoke(object, 1L);
+            }
             store.put(id, copyObject(object));
             rowLock.putIfAbsent(id, new ReentrantLock());
         } catch (NoSuchMethodException e) {

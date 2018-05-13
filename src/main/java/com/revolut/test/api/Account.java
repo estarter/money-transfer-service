@@ -15,6 +15,7 @@ public class Account {
     private static final AtomicLong idGenerator = new AtomicLong();
 
     private Long id;
+    private Long version;
     private BigDecimal balance;
     private Currency currency;
     private String name;
@@ -31,5 +32,6 @@ public class Account {
         setBalance(another.getBalance());
         setCurrency(another.getCurrency());
         setName(another.getName());
+        setVersion(another.getVersion());
     }
 }

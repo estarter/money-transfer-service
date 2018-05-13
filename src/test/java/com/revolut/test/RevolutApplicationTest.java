@@ -47,7 +47,7 @@ class RevolutApplicationTest {
         assertThat(response.getStatus()).isEqualTo(201);
         String accountUrl = response.getHeaderString("Location");
         Account retrievedAccount = EXTENSION.client().target(accountUrl).request().get(Account.class);
-        assertThat(origAccount).isEqualToIgnoringGivenFields(retrievedAccount, "id");
+        assertThat(origAccount).isEqualToIgnoringGivenFields(retrievedAccount, "id", "version");
 
         ids = EXTENSION.client()
                        .target("http://localhost:" + EXTENSION.getLocalPort() + "/api/accounts")

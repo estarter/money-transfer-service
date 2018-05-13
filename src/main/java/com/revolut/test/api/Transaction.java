@@ -19,6 +19,7 @@ public class Transaction {
     private static final AtomicLong idGenerator = new AtomicLong();
 
     private Long id;
+    private Long version;
     @NonNull
     private Long srcAccountId;
     @NonNull
@@ -42,5 +43,6 @@ public class Transaction {
         setAmount(another.getAmount());
         setCurrency(another.getCurrency());
         setState(another.getState());
+        setVersion(another.getVersion());
     }
 }
