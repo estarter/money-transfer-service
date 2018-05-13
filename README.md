@@ -1,6 +1,6 @@
-# Revolut
+# Money transfer service
 
-How to start the Revolut application
+How to start the application
 ---
 
 1. Run `mvn clean install` to build your application

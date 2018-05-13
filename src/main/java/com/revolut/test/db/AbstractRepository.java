@@ -22,7 +22,7 @@ public abstract class AbstractRepository<T> {
     /* object storage id -> object */
     final Map<Long, T> store = new ConcurrentHashMap<>();
     /* each object can be independently locked, therefore id -> lock map */
-    private final Map<Long, ReentrantLock> rowLock = new ConcurrentHashMap<>();
+    final Map<Long, ReentrantLock> rowLock = new ConcurrentHashMap<>();
 
     AbstractRepository(long lockTimeout) {
         this.lockTimeout = lockTimeout;
