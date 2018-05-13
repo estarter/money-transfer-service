@@ -1,7 +1,8 @@
 package com.revolut.test.resources.support;
 
-import java.time.format.DateTimeFormatter;
+import java.time.ZonedDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.revolut.test.api.Transaction;
 import com.revolut.test.api.support.TransactionState;
 
@@ -14,19 +15,16 @@ public class TransferResult {
 
     private Long id;
     private TransactionState state;
-    private String createdAt;
-    private String completedAt;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private ZonedDateTime createdAt;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private ZonedDateTime completedAt;
 
     public TransferResult(Transaction transaction) {
         setId(transaction.getId());
         setState(transaction.getState());
-
-        if (transaction.getCreatedAt() != null) {
-            setCreatedAt(transaction.getCreatedAt().format(DateTimeFormatter.ISO_DATE_TIME));
-        }
-        if (transaction.getCompletedAt() != null) {
-            setCompletedAt(transaction.getCompletedAt().format(DateTimeFormatter.ISO_DATE_TIME));
-        }
+        setCreatedAt(transaction.getCreatedAt());
+        setCompletedAt(transaction.getCompletedAt());
     }
 
 }

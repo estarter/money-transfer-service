@@ -6,8 +6,12 @@ import static org.assertj.core.api.Assertions.byLessThan;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAccessor;
 import java.util.Currency;
+import java.util.Map;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
@@ -123,7 +127,7 @@ class RevolutApplicationTest {
                                    .hasFieldOrPropertyWithValue("currency", Currency.getInstance("CHF"))
                                    .hasFieldOrPropertyWithValue("state", TransactionState.COMPLETED)
                                    .hasFieldOrPropertyWithValue("reference", "myref1")
-                                   .hasNoNullFieldsOrProperties();
+                                   .hasNoNullFieldsOrPropertiesExcept("version");
         }
 
         @Test
@@ -148,12 +152,12 @@ class RevolutApplicationTest {
                                    .hasFieldOrPropertyWithValue("currency", Currency.getInstance("CHF"))
                                    .hasFieldOrPropertyWithValue("state", TransactionState.FAILED)
                                    .hasFieldOrPropertyWithValue("reference", "myref1")
-                                   .hasNoNullFieldsOrPropertiesExcept("completedAt");
+                                   .hasNoNullFieldsOrPropertiesExcept("completedAt", "version");
         }
     }
 
-    private void assertDateTime(String datetime) {
+    private void assertDateTime(ZonedDateTime datetime) {
         assertThat(datetime).isNotNull();
-        assertThat(LocalDateTime.parse(datetime)).isCloseTo(LocalDateTime.now(), byLessThan(1, ChronoUnit.SECONDS));
+        assertThat(datetime).isCloseTo(ZonedDateTime.now(), byLessThan(1, ChronoUnit.SECONDS));
     }
 }

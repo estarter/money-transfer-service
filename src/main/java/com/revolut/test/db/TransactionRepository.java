@@ -1,6 +1,6 @@
 package com.revolut.test.db;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 import com.revolut.test.api.Account;
 import com.revolut.test.api.Transaction;
@@ -71,7 +71,7 @@ public class TransactionRepository extends AbstractRepository<Transaction> {
         src.setBalance(src.getBalance().subtract(transaction.getAmount()));
         dest.setBalance(dest.getBalance().add(transaction.getAmount()));
         transaction.setState(TransactionState.COMPLETED);
-        transaction.setCompletedAt(LocalDateTime.now());
+        transaction.setCompletedAt(ZonedDateTime.now());
         accountRepository.save(src);
         accountRepository.save(dest);
         save(transaction);

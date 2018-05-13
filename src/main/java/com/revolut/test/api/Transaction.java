@@ -1,10 +1,12 @@
 package com.revolut.test.api;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Currency;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.revolut.test.api.support.TransactionState;
 
 import lombok.Data;
@@ -16,6 +18,7 @@ public class Transaction {
     private static final AtomicLong idGenerator = new AtomicLong();
 
     private Long id;
+    @JsonIgnore
     private Long version;
     @NonNull
     private Long srcAccountId;
@@ -28,13 +31,15 @@ public class Transaction {
     @NonNull
     private TransactionState state;
     private String reference;
-    private LocalDateTime createdAt;
-    private LocalDateTime completedAt;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private ZonedDateTime createdAt;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private ZonedDateTime completedAt;
 
     public Transaction() {
         id = idGenerator.incrementAndGet();
         state = TransactionState.PENDING;
-        createdAt = LocalDateTime.now();
+        createdAt = ZonedDateTime.now();
     }
 
     public Transaction(Transaction another) {
