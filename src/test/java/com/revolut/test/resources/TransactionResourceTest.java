@@ -47,7 +47,7 @@ class TransactionResourceTest {
         assertThat(transactionRepository.getLatest().getSrcAccountId()).isEqualTo(from.getId());
         assertThat(transactionRepository.getLatest().getDestAccountId()).isEqualTo(to.getId());
         assertThat(transactionRepository.getLatest().getCurrency()).isEqualTo(Currency.getInstance("CHF"));
-        assertThat(transactionRepository.getLatest().getState()).isEqualTo(TransactionState.EXECUTED);
+        assertThat(transactionRepository.getLatest().getState()).isEqualTo(TransactionState.COMPLETED);
     }
 
     @Test

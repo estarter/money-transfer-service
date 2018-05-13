@@ -24,9 +24,9 @@ public class TransactionRepository extends AbstractRepository<Transaction> {
     /**
      * Process new transaction.
      * <p>
-     * First the transaction is saved with status CREATED.
+     * First the transaction is saved with status PENDING.
      * Then it tries to execute the transaction.
-     * In case of successful execution transaction status is set to EXECUTED, source and destination accounts are
+     * In case of successful execution transaction status is set to COMPLETED, source and destination accounts are
      * updated accordingly.
      * <p>
      * In case of failed execution transaction status is set to FAILED, source and destination accounts are not
@@ -73,7 +73,7 @@ public class TransactionRepository extends AbstractRepository<Transaction> {
 
         src.setBalance(src.getBalance().subtract(transaction.getAmount()));
         dest.setBalance(dest.getBalance().add(transaction.getAmount()));
-        transaction.setState(TransactionState.EXECUTED);
+        transaction.setState(TransactionState.COMPLETED);
         accountRepository.save(src);
         accountRepository.save(dest);
         save(transaction);

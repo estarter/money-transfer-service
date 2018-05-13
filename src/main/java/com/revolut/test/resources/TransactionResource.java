@@ -46,9 +46,7 @@ public class TransactionResource {
         try {
             transactionRepository.process(transaction);
 
-            UriBuilder builder = uriInfo.getAbsolutePathBuilder();
-            builder.path(Long.toString(transaction.getId()));
-            return Response.created(builder.build()).build();
+            return Response.status(Response.Status.CREATED).entity(transaction).build();
         } catch (RuntimeException e) {
             return Response.status(400).entity(e.getMessage()).build();
         }

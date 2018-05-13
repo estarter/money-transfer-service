@@ -33,7 +33,7 @@ public class Transaction {
 
     public Transaction() {
         id = idGenerator.incrementAndGet();
-        state = TransactionState.CREATED;
+        state = TransactionState.PENDING;
     }
 
     public Transaction(Transaction another) {

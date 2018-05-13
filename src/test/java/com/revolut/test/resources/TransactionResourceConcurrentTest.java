@@ -63,7 +63,7 @@ class TransactionResourceConcurrentTest {
         val notExecuted = transactionRepository.getAll()
                                                .stream()
                                                .map(id -> transactionRepository.get(id).getState())
-                                               .filter(s -> !s.equals(TransactionState.EXECUTED))
+                                               .filter(s -> !s.equals(TransactionState.COMPLETED))
                                                .findAny();
         assertThat(notExecuted).isEmpty();
     }
