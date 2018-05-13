@@ -12,5 +12,6 @@ public class Transfer {
     private Long to;
     private BigDecimal amount;
     private Currency currency;
+    private String reference;
 
 }

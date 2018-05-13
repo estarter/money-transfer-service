@@ -1,19 +1,16 @@
 package com.revolut.test.api;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Currency;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.revolut.test.api.support.TransactionState;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
 
 @Data
-@AllArgsConstructor
-@Builder
 public class Transaction {
 
     private static final AtomicLong idGenerator = new AtomicLong();
@@ -30,10 +27,14 @@ public class Transaction {
     private Currency currency;
     @NonNull
     private TransactionState state;
+    private String reference;
+    private LocalDateTime createdAt;
+    private LocalDateTime completedAt;
 
     public Transaction() {
         id = idGenerator.incrementAndGet();
         state = TransactionState.PENDING;
+        createdAt = LocalDateTime.now();
     }
 
     public Transaction(Transaction another) {
@@ -44,5 +45,8 @@ public class Transaction {
         setCurrency(another.getCurrency());
         setState(another.getState());
         setVersion(another.getVersion());
+        setReference(another.getReference());
+        setCreatedAt(another.getCreatedAt());
+        setCompletedAt(another.getCompletedAt());
     }
 }

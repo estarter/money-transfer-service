@@ -62,7 +62,7 @@ public abstract class AbstractRepository<T> {
                     throw new OptimisticLockException(
                             "Object " + object.getClass().getName() + " #" + id + " is out of sync.");
                 }
-                object.getClass().getMethod("setVersion", Long.class).invoke(object, version+1);
+                object.getClass().getMethod("setVersion", Long.class).invoke(object, version + 1);
             } else {
                 object.getClass().getMethod("setVersion", Long.class).invoke(object, 1L);
             }

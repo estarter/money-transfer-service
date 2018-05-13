@@ -5,11 +5,9 @@ import java.util.Currency;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor
 public class Account {
 
     private static final AtomicLong idGenerator = new AtomicLong();

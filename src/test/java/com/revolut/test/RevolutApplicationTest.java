@@ -2,18 +2,24 @@ package com.revolut.test;
 
 import static com.revolut.test.TestHelper.assertBalance;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.byLessThan;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.revolut.test.api.Account;
+import com.revolut.test.api.support.TransactionState;
 import com.revolut.test.db.AccountRepository;
 import com.revolut.test.resources.support.Transfer;
+import com.revolut.test.resources.support.TransferResult;
 
 import io.dropwizard.testing.ResourceHelpers;
 import io.dropwizard.testing.junit5.DropwizardAppExtension;
@@ -72,20 +78,29 @@ class RevolutApplicationTest {
         transfer.setTo(to.getId());
         transfer.setAmount(BigDecimal.valueOf(12.3));
         transfer.setCurrency(from.getCurrency());
-        Response response = EXTENSION.client()
-                                     .target("http://localhost:" + EXTENSION.getLocalPort() + "/api/transactions")
-                                     .request()
-                                     .post(Entity.json(transfer));
+        transfer.setReference("myref1");
+        TransferResult result = EXTENSION.client()
+                                         .target("http://localhost:" + EXTENSION.getLocalPort() + "/api/transactions")
+                                         .request(MediaType.APPLICATION_JSON_TYPE)
+                                         .post(Entity.json(transfer), TransferResult.class);
 
-        assertThat(response.getStatus()).isEqualTo(201);
+        assertThat(result.getState()).isEqualTo(TransactionState.COMPLETED);
         assertBalance(87.7, accountRepository.get(from.getId()).getBalance());
         assertBalance(12.3, accountRepository.get(to.getId()).getBalance());
+        assertThat(result.getId()).isNotNull();
+        assertDateTime(result.getCreatedAt());
+        assertDateTime(result.getCompletedAt());
 
         transfer.setAmount(BigDecimal.valueOf(100));
-        response = EXTENSION.client()
-                            .target("http://localhost:" + EXTENSION.getLocalPort() + "/api/transactions")
-                            .request()
-                            .post(Entity.json(transfer));
-        assertThat(response.getStatus()).isEqualTo(400);
+        Response response2 = EXTENSION.client()
+                                      .target("http://localhost:" + EXTENSION.getLocalPort() + "/api/transactions")
+                                      .request()
+                                      .post(Entity.json(transfer));
+        assertThat(response2.getStatus()).isEqualTo(400);
+    }
+
+    private void assertDateTime(String datetime) {
+        assertThat(datetime).isNotNull();
+        assertThat(LocalDateTime.parse(datetime)).isCloseTo(LocalDateTime.now(), byLessThan(1, ChronoUnit.SECONDS));
     }
 }

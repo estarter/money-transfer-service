@@ -48,6 +48,7 @@ class TransactionResourceTest {
         assertThat(transactionRepository.getLatest().getDestAccountId()).isEqualTo(to.getId());
         assertThat(transactionRepository.getLatest().getCurrency()).isEqualTo(Currency.getInstance("CHF"));
         assertThat(transactionRepository.getLatest().getState()).isEqualTo(TransactionState.COMPLETED);
+        assertThat(transactionRepository.getLatest().getReference()).isEqualTo("myref1");
     }
 
     @Test
@@ -101,6 +102,7 @@ class TransactionResourceTest {
         transaction.setSrcAccountId(from.getId());
         transaction.setDestAccountId(to.getId());
         transaction.setAmount(BigDecimal.valueOf(amount));
+        transaction.setReference("myref1");
         return transaction;
     }
 }

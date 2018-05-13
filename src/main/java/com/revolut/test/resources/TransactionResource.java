@@ -10,13 +10,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import com.codahale.metrics.annotation.Timed;
 import com.revolut.test.api.Transaction;
 import com.revolut.test.db.TransactionRepository;
 import com.revolut.test.resources.support.Transfer;
+import com.revolut.test.resources.support.TransferResult;
 
 @Path("/api/transactions")
 @Produces(MediaType.APPLICATION_JSON)
@@ -42,11 +42,12 @@ public class TransactionResource {
         transaction.setDestAccountId(transfer.getTo());
         transaction.setAmount(transfer.getAmount());
         transaction.setCurrency(transfer.getCurrency());
+        transaction.setReference(transfer.getReference());
 
         try {
             transactionRepository.process(transaction);
 
-            return Response.status(Response.Status.CREATED).entity(transaction).build();
+            return Response.status(Response.Status.CREATED).entity(new TransferResult(transaction)).build();
         } catch (RuntimeException e) {
             return Response.status(400).entity(e.getMessage()).build();
         }
