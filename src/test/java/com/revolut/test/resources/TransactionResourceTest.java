@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
 import java.util.Currency;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -75,14 +76,16 @@ class TransactionResourceTest {
 
     @Test
     void itShouldCancelTransactionIfSrcDoesNotExist() {
-        assertTransactionFailure("Can't find account with id '-1'", () -> {
+        UUID id = UUID.randomUUID();
+        String errorMessage = "Can't find account with id '" + id + "'";
+        assertTransactionFailure(errorMessage, () -> {
             Transaction transaction = makeTransaction(from, to, 10);
-            transaction.setSrcAccountId(-1L);
+            transaction.setSrcAccountId(id);
             transactionRepository.process(transaction);
         });
-        assertTransactionFailure("Can't find account with id '-2'", () -> {
+        assertTransactionFailure(errorMessage, () -> {
             Transaction transaction = makeTransaction(from, to, 10);
-            transaction.setDestAccountId(-2L);
+            transaction.setSrcAccountId(id);
             transactionRepository.process(transaction);
         });
     }

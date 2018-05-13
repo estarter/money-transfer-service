@@ -2,6 +2,7 @@ package com.revolut.test.api;
 
 import java.math.BigDecimal;
 import java.util.Currency;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.revolut.test.api.support.TransactionState;
@@ -21,9 +22,9 @@ public class Transaction {
     private Long id;
     private Long version;
     @NonNull
-    private Long srcAccountId;
+    private UUID srcAccountId;
     @NonNull
-    private Long destAccountId;
+    private UUID destAccountId;
     @NonNull
     private BigDecimal amount;
     @NonNull

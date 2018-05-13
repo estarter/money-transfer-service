@@ -14,13 +14,13 @@ import com.revolut.test.db.support.OptimisticLockException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public abstract class AbstractRepository<T> {
+public abstract class AbstractRepository<TT, T> {
 
     private final long lockTimeout;
     /* object storage id -> object */
-    final Map<Long, T> store = new ConcurrentHashMap<>();
+    final Map<TT, T> store = new ConcurrentHashMap<>();
     /* each object can be independently locked, therefore id -> lock map */
-    private final Map<Long, ReentrantLock> rowLock = new ConcurrentHashMap<>();
+    private final Map<TT, ReentrantLock> rowLock = new ConcurrentHashMap<>();
 
     AbstractRepository(long lockTimeout) {
         this.lockTimeout = lockTimeout;
@@ -37,7 +37,7 @@ public abstract class AbstractRepository<T> {
      *
      * @throws ObjectNotFoundException if object is not found
      */
-    public T get(Long id) {
+    public T get(TT id) {
         T result = store.get(id);
         if (result == null) {
             throw new ObjectNotFoundException("Can't find account with id '" + id + "'");
@@ -53,7 +53,7 @@ public abstract class AbstractRepository<T> {
      */
     public void save(T object) {
         try {
-            long id = (Long) object.getClass().getMethod("getId").invoke(object);
+            TT id = (TT) object.getClass().getMethod("getId").invoke(object);
             if (store.containsKey(id)) {
                 T origObject = store.get(id);
                 Long version = (Long) object.getClass().getMethod("getVersion").invoke(object);
@@ -81,7 +81,7 @@ public abstract class AbstractRepository<T> {
      * @return whether the lock is acquired
      * @throws ObjectNotFoundException if object is not found
      */
-    boolean lock(Long id) {
+    boolean lock(TT id) {
         try {
             if (!rowLock.containsKey(id)) {
                 throw new ObjectNotFoundException("Can't find account with id '" + id + "'");
@@ -97,7 +97,7 @@ public abstract class AbstractRepository<T> {
     /**
      * Release the lock for the object
      */
-    void unlock(Long id) {
+    void unlock(TT id) {
         ReentrantLock reentrantLock = rowLock.get(id);
         if (reentrantLock != null && reentrantLock.isHeldByCurrentThread()) {
             reentrantLock.unlock();
@@ -107,7 +107,7 @@ public abstract class AbstractRepository<T> {
     /**
      * @return id of all stored objects
      */
-    public Set<Long> getAll() {
+    public Set<TT> getAll() {
         return store.keySet();
     }
 

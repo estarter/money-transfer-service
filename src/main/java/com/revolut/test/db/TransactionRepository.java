@@ -7,7 +7,7 @@ import com.revolut.test.api.support.TransactionState;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class TransactionRepository extends AbstractRepository<Transaction> {
+public class TransactionRepository extends AbstractRepository<Long, Transaction> {
 
     private final AccountRepository accountRepository;
 

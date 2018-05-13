@@ -1,6 +1,7 @@
 package com.revolut.test.resources;
 
 import java.util.Set;
+import java.util.UUID;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -29,7 +30,7 @@ public class AccountResource {
 
     @GET
     @Timed
-    public Set<Long> getAllAccount() {
+    public Set<UUID> getAllAccount() {
         return accountRepository.getAll();
     }
 
@@ -39,14 +40,14 @@ public class AccountResource {
         accountRepository.save(account);
 
         UriBuilder builder = uriInfo.getAbsolutePathBuilder();
-        builder.path(Long.toString(account.getId()));
+        builder.path(account.getId().toString());
         return Response.created(builder.build()).build();
     }
 
     @GET
     @Path("/{id}")
     @Timed
-    public Account getAccount(@PathParam("id") Long id) {
+    public Account getAccount(@PathParam("id") UUID id) {
         return accountRepository.get(id);
     }
 }

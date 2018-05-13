@@ -4,6 +4,7 @@ import static com.revolut.test.TestHelper.assertBalance;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -31,10 +32,10 @@ class RevolutApplicationTest {
 
     @Test
     void testAccountResource() {
-        Long[] ids = EXTENSION.client()
+        UUID[] ids = EXTENSION.client()
                               .target("http://localhost:" + EXTENSION.getLocalPort() + "/api/accounts")
                               .request()
-                              .get(Long[].class);
+                              .get(UUID[].class);
         assertThat(ids).isEmpty();
 
         Account origAccount = new Account();
@@ -52,7 +53,7 @@ class RevolutApplicationTest {
         ids = EXTENSION.client()
                        .target("http://localhost:" + EXTENSION.getLocalPort() + "/api/accounts")
                        .request()
-                       .get(Long[].class);
+                       .get(UUID[].class);
         assertThat(ids).hasSize(1);
         assertThat(accountUrl).endsWith("/" + ids[0]);
     }
