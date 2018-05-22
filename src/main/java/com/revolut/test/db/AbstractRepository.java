@@ -2,7 +2,6 @@ package com.revolut.test.db;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
@@ -10,19 +9,20 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.revolut.test.api.DataObject;
 import com.revolut.test.db.support.ObjectNotFoundException;
 import com.revolut.test.db.support.OptimisticLockException;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public abstract class AbstractRepository<T> {
+public abstract class AbstractRepository<T extends DataObject<ID>, ID extends Comparable<ID>> {
 
     private final long lockTimeout;
     /* object storage id -> object */
-    final Map<Long, T> store = new ConcurrentHashMap<>();
+    final Map<ID, T> store = new ConcurrentHashMap<>();
     /* each object can be independently locked, therefore id -> lock map */
-    final Map<Long, ReentrantLock> rowLock = new ConcurrentHashMap<>();
+    final Map<ID, ReentrantLock> rowLock = new ConcurrentHashMap<>();
 
     AbstractRepository(long lockTimeout) {
         this.lockTimeout = lockTimeout;
@@ -39,7 +39,7 @@ public abstract class AbstractRepository<T> {
      *
      * @throws ObjectNotFoundException if object is not found
      */
-    public T get(Long id) {
+    public T get(ID id) {
         T result = store.get(id);
         if (result == null) {
             throw new ObjectNotFoundException("Can't find account with id '" + id + "'");
@@ -49,8 +49,7 @@ public abstract class AbstractRepository<T> {
     }
 
     public T getLatest() {
-        Long id = store.keySet().stream().max(Comparator.naturalOrder()).orElse(-1L);
-        return get(id);
+        return store.keySet().stream().max(Comparator.naturalOrder()).map(this::get).orElse(null);
     }
 
     /**
@@ -59,29 +58,22 @@ public abstract class AbstractRepository<T> {
      * Object must have getId method that returns its unique identifier.
      */
     public T save(T object) {
-        try {
-            long id = (Long) object.getClass().getMethod("getId").invoke(object);
-            if (store.containsKey(id)) {
-                T origObject = store.get(id);
-                Method getVersion = object.getClass().getMethod("getVersion");
-                Long version = (Long) getVersion.invoke(object);
-                Long origVersion = (Long) getVersion.invoke(origObject);
-                if (!version.equals(origVersion)) {
-                    throw new OptimisticLockException(
-                            "Object " + object.getClass().getSimpleName() + " #" + id + " is out of sync.");
-                }
-                object.getClass().getMethod("setVersion", Long.class).invoke(object, version + 1);
-            } else {
-                object.getClass().getMethod("setVersion", Long.class).invoke(object, 1L);
+        ID id = object.getId();
+        if (store.containsKey(id)) {
+            T origObject = store.get(id);
+            Long version = object.getVersion();
+            Long origVersion = origObject.getVersion();
+            if (!version.equals(origVersion)) {
+                throw new OptimisticLockException(
+                        "Object " + object.getClass().getSimpleName() + " #" + id + " is out of sync.");
             }
-            store.put(id, copyObject(object));
-            rowLock.putIfAbsent(id, new ReentrantLock());
-            return object;
-        } catch (NoSuchMethodException e) {
-            throw new IllegalStateException("Object should have getId method", e);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new IllegalStateException("Error invocation getId method", e);
+            object.setVersion(version + 1);
+        } else {
+            object.setVersion(1L);
         }
+        store.put(id, copyObject(object));
+        rowLock.putIfAbsent(id, new ReentrantLock());
+        return object;
     }
 
     /**
@@ -90,7 +82,7 @@ public abstract class AbstractRepository<T> {
      * @return whether the lock is acquired
      * @throws ObjectNotFoundException if object is not found
      */
-    boolean lock(Long id) {
+    boolean lock(ID id) {
         try {
             if (!rowLock.containsKey(id)) {
                 throw new ObjectNotFoundException("Can't find account with id '" + id + "'");
@@ -106,7 +98,7 @@ public abstract class AbstractRepository<T> {
     /**
      * Release the lock for the object
      */
-    void unlock(Long id) {
+    void unlock(ID id) {
         ReentrantLock reentrantLock = rowLock.get(id);
         if (reentrantLock != null && reentrantLock.isHeldByCurrentThread()) {
             reentrantLock.unlock();
@@ -116,7 +108,7 @@ public abstract class AbstractRepository<T> {
     /**
      * @return id of all stored objects
      */
-    public Set<Long> getAll() {
+    public Set<ID> getAll() {
         return store.keySet();
     }
 

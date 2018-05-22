@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import lombok.Data;
 
 @Data
-public class Account {
+public class Account implements DataObject<Long> {
 
     private static final AtomicLong idGenerator = new AtomicLong();
 

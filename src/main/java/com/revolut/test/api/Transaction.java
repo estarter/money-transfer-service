@@ -13,7 +13,7 @@ import lombok.Data;
 import lombok.NonNull;
 
 @Data
-public class Transaction {
+public class Transaction implements DataObject<Long> {
 
     private static final AtomicLong idGenerator = new AtomicLong();
 
