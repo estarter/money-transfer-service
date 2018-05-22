@@ -1,7 +1,5 @@
 package com.revolut.test.db;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
@@ -12,6 +10,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.revolut.test.api.DataObject;
 import com.revolut.test.db.support.ObjectNotFoundException;
 import com.revolut.test.db.support.OptimisticLockException;
+import com.revolut.test.db.support.RepositoryItem;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,7 +19,7 @@ public abstract class AbstractRepository<T extends DataObject<ID>, ID extends Co
 
     private final long lockTimeout;
     /* object storage id -> object */
-    final Map<ID, T> store = new ConcurrentHashMap<>();
+    final Map<ID, RepositoryItem<T>> store = new ConcurrentHashMap<>();
     /* each object can be independently locked, therefore id -> lock map */
     final Map<ID, ReentrantLock> rowLock = new ConcurrentHashMap<>();
 
@@ -40,12 +39,11 @@ public abstract class AbstractRepository<T extends DataObject<ID>, ID extends Co
      * @throws ObjectNotFoundException if object is not found
      */
     public T get(ID id) {
-        T result = store.get(id);
-        if (result == null) {
+        RepositoryItem<T> item = store.get(id);
+        if (item == null) {
             throw new ObjectNotFoundException("Can't find account with id '" + id + "'");
         }
-
-        return copyObject(result);
+        return item.getObject();
     }
 
     public T getLatest() {
@@ -60,9 +58,8 @@ public abstract class AbstractRepository<T extends DataObject<ID>, ID extends Co
     public T save(T object) {
         ID id = object.getId();
         if (store.containsKey(id)) {
-            T origObject = store.get(id);
             Long version = object.getVersion();
-            Long origVersion = origObject.getVersion();
+            Long origVersion = get(id).getVersion();
             if (!version.equals(origVersion)) {
                 throw new OptimisticLockException(
                         "Object " + object.getClass().getSimpleName() + " #" + id + " is out of sync.");
@@ -71,7 +68,7 @@ public abstract class AbstractRepository<T extends DataObject<ID>, ID extends Co
         } else {
             object.setVersion(1L);
         }
-        store.put(id, copyObject(object));
+        store.put(id, new RepositoryItem<>(object));
         rowLock.putIfAbsent(id, new ReentrantLock());
         return object;
     }
@@ -112,14 +109,4 @@ public abstract class AbstractRepository<T extends DataObject<ID>, ID extends Co
         return store.keySet();
     }
 
-    private T copyObject(T result) {
-        try {
-            Constructor constructor = result.getClass().getConstructor(result.getClass());
-            return (T) constructor.newInstance(result);
-        } catch (NoSuchMethodException e) {
-            throw new IllegalStateException("Object should implement a copy constructor", e);
-        } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-            throw new IllegalStateException("Error invocation copy constructor", e);
-        }
-    }
 }

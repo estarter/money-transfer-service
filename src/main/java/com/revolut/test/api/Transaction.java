@@ -42,16 +42,4 @@ public class Transaction implements DataObject<Long> {
         createdAt = ZonedDateTime.now();
     }
 
-    public Transaction(Transaction another) {
-        setId(another.getId());
-        setSrcAccountId(another.getSrcAccountId());
-        setDestAccountId(another.getDestAccountId());
-        setAmount(another.getAmount());
-        setCurrency(another.getCurrency());
-        setState(another.getState());
-        setVersion(another.getVersion());
-        setReference(another.getReference());
-        setCreatedAt(another.getCreatedAt());
-        setCompletedAt(another.getCompletedAt());
-    }
 }

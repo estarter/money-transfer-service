@@ -25,11 +25,4 @@ public class Account implements DataObject<Long> {
         name = UUID.randomUUID().toString();
     }
 
-    public Account(Account another) {
-        setId(another.getId());
-        setBalance(another.getBalance());
-        setCurrency(another.getCurrency());
-        setName(another.getName());
-        setVersion(another.getVersion());
-    }
 }

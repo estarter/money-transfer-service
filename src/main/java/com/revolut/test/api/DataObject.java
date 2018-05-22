@@ -1,6 +1,8 @@
 package com.revolut.test.api;
 
-public interface DataObject<TT> {
+import java.io.Serializable;
+
+public interface DataObject<TT> extends Serializable {
 
     TT getId();
 
